@@ -17,23 +17,23 @@
 package org.apache.dubbo.rpc;
 
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RpcResultTest {
     @Test
     public void testRecreateWithNormalException() {
         NullPointerException npe = new NullPointerException();
-        RpcResult rpcResult = new RpcResult(npe);
+        AppResponse appResponse = new AppResponse(npe);
         try {
-            rpcResult.recreate();
+            appResponse.recreate();
             fail();
         } catch (Throwable throwable) {
             StackTraceElement[] stackTrace = throwable.getStackTrace();
-            Assert.assertNotNull(stackTrace);
-            Assert.assertTrue(stackTrace.length > 1);
+            Assertions.assertNotNull(stackTrace);
+            Assertions.assertTrue(stackTrace.length > 1);
         }
     }
 
@@ -64,14 +64,14 @@ public class RpcResultTest {
         }
         // end construct a NullPointerException with empty stackTrace
 
-        RpcResult rpcResult = new RpcResult(throwable);
+        AppResponse appResponse = new AppResponse(throwable);
         try {
-            rpcResult.recreate();
+            appResponse.recreate();
             fail();
         } catch (Throwable t) {
             StackTraceElement[] stackTrace = t.getStackTrace();
-            Assert.assertNotNull(stackTrace);
-            Assert.assertTrue(stackTrace.length == 0);
+            Assertions.assertNotNull(stackTrace);
+            Assertions.assertTrue(stackTrace.length == 0);
         }
     }
 }

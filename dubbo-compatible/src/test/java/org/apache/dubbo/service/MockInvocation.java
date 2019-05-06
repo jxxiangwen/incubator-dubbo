@@ -57,7 +57,32 @@ public class MockInvocation implements Invocation {
         return attachments;
     }
 
+    @Override
+    public void setAttachment(String key, String value) {
+
+    }
+
+    @Override
+    public void setAttachmentIfAbsent(String key, String value) {
+
+    }
+
     public Invoker<?> getInvoker() {
+        return null;
+    }
+
+    @Override
+    public Object put(Object key, Object value) {
+        return null;
+    }
+
+    @Override
+    public Object get(Object key) {
+        return null;
+    }
+
+    @Override
+    public Map<Object, Object> getAttributes() {
         return null;
     }
 

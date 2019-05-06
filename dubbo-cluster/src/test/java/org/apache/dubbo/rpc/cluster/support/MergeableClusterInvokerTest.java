@@ -18,15 +18,16 @@ package org.apache.dubbo.rpc.cluster.support;
 
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.rpc.AppResponse;
+import org.apache.dubbo.rpc.AsyncRpcResult;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
-import org.apache.dubbo.rpc.RpcResult;
 import org.apache.dubbo.rpc.cluster.Directory;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -38,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -86,7 +87,7 @@ public class MergeableClusterInvokerTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
         directory = mock(Directory.class);
@@ -119,7 +120,7 @@ public class MergeableClusterInvokerTest {
                     return MenuService.class;
                 }
                 if ("invoke".equals(method.getName())) {
-                    return new RpcResult(firstMenu);
+                    return AsyncRpcResult.newDefaultAsyncResult(firstMenu, invocation);
                 }
                 return null;
             }
@@ -135,7 +136,7 @@ public class MergeableClusterInvokerTest {
                     return MenuService.class;
                 }
                 if ("invoke".equals(method.getName())) {
-                    return new RpcResult(secondMenu);
+                    return AsyncRpcResult.newDefaultAsyncResult(secondMenu, invocation);
                 }
                 return null;
             }
@@ -155,7 +156,7 @@ public class MergeableClusterInvokerTest {
 
         // invoke
         Result result = mergeableClusterInvoker.invoke(invocation);
-        Assert.assertTrue(result.getValue() instanceof Menu);
+        Assertions.assertTrue(result.getValue() instanceof Menu);
         Menu menu = (Menu) result.getValue();
         Map<String, List<String>> expected = new HashMap<String, List<String>>();
         merge(expected, firstMenuMap);
@@ -195,14 +196,14 @@ public class MergeableClusterInvokerTest {
         given(firstInvoker.getUrl()).willReturn(
                 url.addParameter(Constants.GROUP_KEY, "first"));
         given(firstInvoker.getInterface()).willReturn(MenuService.class);
-        given(firstInvoker.invoke(invocation)).willReturn(new RpcResult())
+        given(firstInvoker.invoke(invocation)).willReturn(new AppResponse())
                 ;
         given(firstInvoker.isAvailable()).willReturn(true);
 
         given(secondInvoker.getUrl()).willReturn(
                 url.addParameter(Constants.GROUP_KEY, "second"));
         given(secondInvoker.getInterface()).willReturn(MenuService.class);
-        given(secondInvoker.invoke(invocation)).willReturn(new RpcResult())
+        given(secondInvoker.invoke(invocation)).willReturn(new AppResponse())
                 ;
         given(secondInvoker.isAvailable()).willReturn(true);
 
@@ -219,7 +220,7 @@ public class MergeableClusterInvokerTest {
         mergeableClusterInvoker = new MergeableClusterInvoker<MenuService>(directory);
 
         Result result = mergeableClusterInvoker.invoke(invocation);
-        Assert.assertNull(result.getValue());
+        Assertions.assertNull(result.getValue());
 
     }
 

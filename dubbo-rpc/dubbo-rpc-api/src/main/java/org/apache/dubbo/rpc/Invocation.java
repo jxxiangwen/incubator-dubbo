@@ -59,6 +59,10 @@ public interface Invocation {
      */
     Map<String, String> getAttachments();
 
+    void setAttachment(String key, String value);
+
+    void setAttachmentIfAbsent(String key, String value);
+
     /**
      * get attachment by key.
      *
@@ -83,4 +87,9 @@ public interface Invocation {
      */
     Invoker<?> getInvoker();
 
+    Object put(Object key, Object value);
+
+    Object get(Object key);
+
+    Map<Object, Object> getAttributes();
 }

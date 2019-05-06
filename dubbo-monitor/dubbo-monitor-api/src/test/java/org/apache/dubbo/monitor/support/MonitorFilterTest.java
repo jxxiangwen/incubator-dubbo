@@ -22,14 +22,16 @@ import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.monitor.Monitor;
 import org.apache.dubbo.monitor.MonitorFactory;
 import org.apache.dubbo.monitor.MonitorService;
+import org.apache.dubbo.rpc.AsyncRpcResult;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.RpcInvocation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.UnsupportedEncodingException;
@@ -73,7 +75,7 @@ public class MonitorFilterTest {
 
         public Result invoke(Invocation invocation) throws RpcException {
             lastInvocation = invocation;
-            return null;
+            return AsyncRpcResult.newDefaultAsyncResult(invocation);
         }
 
         @Override
@@ -115,20 +117,24 @@ public class MonitorFilterTest {
         monitorFilter.setMonitorFactory(monitorFactory);
         Invocation invocation = new RpcInvocation("aaa", new Class<?>[0], new Object[0]);
         RpcContext.getContext().setRemoteAddress(NetUtils.getLocalHost(), 20880).setLocalAddress(NetUtils.getLocalHost(), 2345);
-        monitorFilter.invoke(serviceInvoker, invocation);
+        Result result = monitorFilter.invoke(serviceInvoker, invocation);
+        result.thenApplyWithContext((r) -> {
+            monitorFilter.listener().onResponse(r, serviceInvoker, invocation);
+            return r;
+        });
         while (lastStatistics == null) {
             Thread.sleep(10);
         }
-        Assert.assertEquals("abc", lastStatistics.getParameter(MonitorService.APPLICATION));
-        Assert.assertEquals(MonitorService.class.getName(), lastStatistics.getParameter(MonitorService.INTERFACE));
-        Assert.assertEquals("aaa", lastStatistics.getParameter(MonitorService.METHOD));
-        Assert.assertEquals(NetUtils.getLocalHost() + ":20880", lastStatistics.getParameter(MonitorService.PROVIDER));
-        Assert.assertEquals(NetUtils.getLocalHost(), lastStatistics.getAddress());
-        Assert.assertEquals(null, lastStatistics.getParameter(MonitorService.CONSUMER));
-        Assert.assertEquals(1, lastStatistics.getParameter(MonitorService.SUCCESS, 0));
-        Assert.assertEquals(0, lastStatistics.getParameter(MonitorService.FAILURE, 0));
-        Assert.assertEquals(1, lastStatistics.getParameter(MonitorService.CONCURRENT, 0));
-        Assert.assertEquals(invocation, lastInvocation);
+        Assertions.assertEquals("abc", lastStatistics.getParameter(MonitorService.APPLICATION));
+        Assertions.assertEquals(MonitorService.class.getName(), lastStatistics.getParameter(MonitorService.INTERFACE));
+        Assertions.assertEquals("aaa", lastStatistics.getParameter(MonitorService.METHOD));
+        Assertions.assertEquals(NetUtils.getLocalHost() + ":20880", lastStatistics.getParameter(MonitorService.PROVIDER));
+        Assertions.assertEquals(NetUtils.getLocalHost(), lastStatistics.getAddress());
+        Assertions.assertEquals(null, lastStatistics.getParameter(MonitorService.CONSUMER));
+        Assertions.assertEquals(1, lastStatistics.getParameter(MonitorService.SUCCESS, 0));
+        Assertions.assertEquals(0, lastStatistics.getParameter(MonitorService.FAILURE, 0));
+        Assertions.assertEquals(1, lastStatistics.getParameter(MonitorService.CONCURRENT, 0));
+        Assertions.assertEquals(invocation, lastInvocation);
     }
 
     @Test
@@ -151,20 +157,24 @@ public class MonitorFilterTest {
         monitorFilter.setMonitorFactory(monitorFactory);
         Invocation invocation = new RpcInvocation("$invoke", new Class<?>[]{String.class, String[].class, Object[].class}, new Object[]{"xxx", new String[]{}, new Object[]{}});
         RpcContext.getContext().setRemoteAddress(NetUtils.getLocalHost(), 20880).setLocalAddress(NetUtils.getLocalHost(), 2345);
-        monitorFilter.invoke(serviceInvoker, invocation);
+        Result result = monitorFilter.invoke(serviceInvoker, invocation);
+        result.thenApplyWithContext((r) -> {
+            monitorFilter.listener().onResponse(r, serviceInvoker, invocation);
+            return r;
+        });
         while (lastStatistics == null) {
             Thread.sleep(10);
         }
-        Assert.assertEquals("abc", lastStatistics.getParameter(MonitorService.APPLICATION));
-        Assert.assertEquals(MonitorService.class.getName(), lastStatistics.getParameter(MonitorService.INTERFACE));
-        Assert.assertEquals("xxx", lastStatistics.getParameter(MonitorService.METHOD));
-        Assert.assertEquals(NetUtils.getLocalHost() + ":20880", lastStatistics.getParameter(MonitorService.PROVIDER));
-        Assert.assertEquals(NetUtils.getLocalHost(), lastStatistics.getAddress());
-        Assert.assertEquals(null, lastStatistics.getParameter(MonitorService.CONSUMER));
-        Assert.assertEquals(1, lastStatistics.getParameter(MonitorService.SUCCESS, 0));
-        Assert.assertEquals(0, lastStatistics.getParameter(MonitorService.FAILURE, 0));
-        Assert.assertEquals(1, lastStatistics.getParameter(MonitorService.CONCURRENT, 0));
-        Assert.assertEquals(invocation, lastInvocation);
+        Assertions.assertEquals("abc", lastStatistics.getParameter(MonitorService.APPLICATION));
+        Assertions.assertEquals(MonitorService.class.getName(), lastStatistics.getParameter(MonitorService.INTERFACE));
+        Assertions.assertEquals("xxx", lastStatistics.getParameter(MonitorService.METHOD));
+        Assertions.assertEquals(NetUtils.getLocalHost() + ":20880", lastStatistics.getParameter(MonitorService.PROVIDER));
+        Assertions.assertEquals(NetUtils.getLocalHost(), lastStatistics.getAddress());
+        Assertions.assertEquals(null, lastStatistics.getParameter(MonitorService.CONSUMER));
+        Assertions.assertEquals(1, lastStatistics.getParameter(MonitorService.SUCCESS, 0));
+        Assertions.assertEquals(0, lastStatistics.getParameter(MonitorService.FAILURE, 0));
+        Assertions.assertEquals(1, lastStatistics.getParameter(MonitorService.CONCURRENT, 0));
+        Assertions.assertEquals(invocation, lastInvocation);
     }
 
     @Test

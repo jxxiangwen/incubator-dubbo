@@ -18,6 +18,7 @@ package org.apache.dubbo.rpc;
 
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.utils.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -42,7 +43,13 @@ public class RpcInvocation implements Invocation, Serializable {
 
     private Map<String, String> attachments;
 
+    private Map<Object, Object> attributes = new HashMap<Object, Object>();
+
     private transient Invoker<?> invoker;
+
+    private transient Class<?> returnType;
+
+    private transient InvokeMode invokeMode;
 
     public RpcInvocation() {
     }
@@ -86,6 +93,7 @@ public class RpcInvocation implements Invocation, Serializable {
 
     public RpcInvocation(Method method, Object[] arguments, Map<String, String> attachment) {
         this(method.getName(), method.getParameterTypes(), arguments, attachment, null);
+        this.returnType = method.getReturnType();
     }
 
     public RpcInvocation(String methodName, Class<?>[] parameterTypes, Object[] arguments) {
@@ -111,6 +119,19 @@ public class RpcInvocation implements Invocation, Serializable {
 
     public void setInvoker(Invoker<?> invoker) {
         this.invoker = invoker;
+    }
+
+    public Object put(Object key, Object value) {
+        return attributes.put(key, value);
+    }
+
+    public Object get(Object key) {
+        return attributes.get(key);
+    }
+
+    @Override
+    public Map<Object, Object> getAttributes() {
+        return attributes;
     }
 
     @Override
@@ -198,10 +219,26 @@ public class RpcInvocation implements Invocation, Serializable {
             return defaultValue;
         }
         String value = attachments.get(key);
-        if (value == null || value.length() == 0) {
+        if (StringUtils.isEmpty(value)) {
             return defaultValue;
         }
         return value;
+    }
+
+    public Class<?> getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(Class<?> returnType) {
+        this.returnType = returnType;
+    }
+
+    public InvokeMode getInvokeMode() {
+        return invokeMode;
+    }
+
+    public void setInvokeMode(InvokeMode invokeMode) {
+        this.invokeMode = invokeMode;
     }
 
     @Override
