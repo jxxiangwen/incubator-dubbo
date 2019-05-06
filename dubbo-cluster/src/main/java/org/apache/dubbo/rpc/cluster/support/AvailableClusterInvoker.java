@@ -26,6 +26,7 @@ import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.List;
 
 /**
+ * 使用第一个可用的invoke调用
  * AvailableCluster
  *
  */

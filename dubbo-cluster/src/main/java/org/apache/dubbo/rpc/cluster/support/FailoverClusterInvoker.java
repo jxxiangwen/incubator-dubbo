@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 当调用失败时，记录错误，并且尝试其他调用
  * When invoke fails, log the initial error and retry other invokers (retry n times, which means at most n different invokers will be invoked)
  * Note that retry causes latency.
  * <p>

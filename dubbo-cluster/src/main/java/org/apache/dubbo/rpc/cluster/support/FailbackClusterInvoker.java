@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 当调用失败时，记录失败请求，并且周期性的重试，通常用来做通知
  * When fails, record failure requests and schedule for retry on a regular interval.
  * Especially useful for services of notification.
  *

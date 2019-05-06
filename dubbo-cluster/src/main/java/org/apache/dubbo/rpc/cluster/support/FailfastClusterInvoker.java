@@ -28,6 +28,7 @@ import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.List;
 
 /**
+ * 精准的一个调用，执行出现任务错误都立刻抛出异常，通常用来调用非幂等的写操作
  * Execute exactly once, which means this policy will throw an exception immediately in case of an invocation error.
  * Usually used for non-idempotent write operations
  *

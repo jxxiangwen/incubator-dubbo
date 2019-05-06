@@ -29,6 +29,7 @@ import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.List;
 
 /**
+ * 当调用失败时，记录错误信息，忽略错误，返回一个空结果，通常用来写日志
  * When invoke fails, log the error message and ignore this error by returning an empty RpcResult.
  * Usually used to write audit logs and other operations
  *

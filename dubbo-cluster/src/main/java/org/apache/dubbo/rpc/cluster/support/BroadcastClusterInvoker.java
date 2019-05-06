@@ -29,6 +29,7 @@ import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.List;
 
 /**
+ * 广播调用
  * BroadcastClusterInvoker
  *
  */
