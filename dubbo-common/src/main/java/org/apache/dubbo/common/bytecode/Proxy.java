@@ -16,7 +16,6 @@
  */
 package org.apache.dubbo.common.bytecode;
 
-import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.utils.ClassUtils;
 import org.apache.dubbo.common.utils.ReflectUtils;
 
@@ -33,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.dubbo.common.constants.CommonConstants.MAX_PROXY_COUNT;
 
 /**
  * Proxy.
@@ -73,7 +74,7 @@ public abstract class Proxy {
      * @return Proxy instance.
      */
     public static Proxy getProxy(ClassLoader cl, Class<?>... ics) {
-        if (ics.length > Constants.MAX_PROXY_COUNT) {
+        if (ics.length > MAX_PROXY_COUNT) {
             throw new IllegalArgumentException("interface limit exceeded");
         }
 
@@ -101,7 +102,7 @@ public abstract class Proxy {
         String key = sb.toString();
 
         // get cache by class loader.
-        Map<String, Object> cache;
+        final Map<String, Object> cache;
         synchronized (PROXY_CACHE_MAP) {
             cache = PROXY_CACHE_MAP.computeIfAbsent(cl, k -> new HashMap<>());
         }
@@ -154,7 +155,10 @@ public abstract class Proxy {
 
                 for (Method method : ics[i].getMethods()) {
                     String desc = ReflectUtils.getDesc(method);
-                    if (worked.contains(desc)) {
+                    if (worked.contains(desc) || Modifier.isStatic(method.getModifiers())) {
+                        continue;
+                    }
+                    if (ics[i].isInterface() && Modifier.isStatic(method.getModifiers())) {
                         continue;
                     }
                     worked.add(desc);

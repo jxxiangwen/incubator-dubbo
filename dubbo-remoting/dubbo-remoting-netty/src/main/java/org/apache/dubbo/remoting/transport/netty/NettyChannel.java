@@ -16,13 +16,13 @@
  */
 package org.apache.dubbo.remoting.transport.netty;
 
-import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.remoting.ChannelHandler;
 import org.apache.dubbo.remoting.RemotingException;
 import org.apache.dubbo.remoting.transport.AbstractChannel;
+import org.apache.dubbo.remoting.utils.PayloadDropper;
 
 import org.jboss.netty.channel.ChannelFuture;
 
@@ -30,6 +30,9 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_TIMEOUT;
+import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 
 /**
  * NettyChannel.
@@ -99,7 +102,7 @@ final class NettyChannel extends AbstractChannel {
         try {
             ChannelFuture future = channel.write(message);
             if (sent) {
-                timeout = getUrl().getPositiveParameter(Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+                timeout = getUrl().getPositiveParameter(TIMEOUT_KEY, DEFAULT_TIMEOUT);
                 success = future.await(timeout);
             }
             Throwable cause = future.getCause();
@@ -107,11 +110,11 @@ final class NettyChannel extends AbstractChannel {
                 throw cause;
             }
         } catch (Throwable e) {
-            throw new RemotingException(this, "Failed to send message " + message + " to " + getRemoteAddress() + ", cause: " + e.getMessage(), e);
+            throw new RemotingException(this, "Failed to send message " + PayloadDropper.getRequestWithoutData(message) + " to " + getRemoteAddress() + ", cause: " + e.getMessage(), e);
         }
 
         if (!success) {
-            throw new RemotingException(this, "Failed to send message " + message + " to " + getRemoteAddress()
+            throw new RemotingException(this, "Failed to send message " + PayloadDropper.getRequestWithoutData(message) + " to " + getRemoteAddress()
                     + "in timeout(" + timeout + "ms) limit");
         }
     }
@@ -183,6 +186,13 @@ final class NettyChannel extends AbstractChannel {
         if (obj == null) {
             return false;
         }
+
+        // FIXME: a hack to make org.apache.dubbo.remoting.exchange.support.DefaultFuture.closeChannel work
+        if (obj instanceof NettyClient) {
+            NettyClient client = (NettyClient) obj;
+            return channel.equals(client.getNettyChannel());
+        }
+
         if (getClass() != obj.getClass()) {
             return false;
         }

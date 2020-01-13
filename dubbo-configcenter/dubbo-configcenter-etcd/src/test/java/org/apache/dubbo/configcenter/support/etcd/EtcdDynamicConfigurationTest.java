@@ -17,14 +17,15 @@
 
 package org.apache.dubbo.configcenter.support.etcd;
 
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.config.configcenter.ConfigChangedEvent;
+import org.apache.dubbo.common.config.configcenter.ConfigurationListener;
+import org.apache.dubbo.common.config.configcenter.DynamicConfiguration;
+
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.launcher.EtcdCluster;
 import io.etcd.jetcd.launcher.EtcdClusterFactory;
-import org.apache.dubbo.common.Constants;
-import org.apache.dubbo.common.URL;
-import org.apache.dubbo.configcenter.ConfigChangeEvent;
-import org.apache.dubbo.configcenter.ConfigurationListener;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,6 +39,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.dubbo.remoting.etcd.Constants.SESSION_TIMEOUT_KEY;
 
 /**
  * Unit test for etcd config center support
@@ -56,7 +58,7 @@ public class EtcdDynamicConfigurationTest {
 
         put("/dubbo/config/org.apache.dubbo.etcd.testService/configurators", "hello");
         put("/dubbo/config/test/dubbo.properties", "aaa=bbb");
-        Assert.assertEquals("hello", config.getConfig("org.apache.dubbo.etcd.testService.configurators"));
+        Assert.assertEquals("hello", config.getConfig("org.apache.dubbo.etcd.testService.configurators", DynamicConfiguration.DEFAULT_GROUP));
         Assert.assertEquals("aaa=bbb", config.getConfig("dubbo.properties", "test"));
     }
 
@@ -102,10 +104,10 @@ public class EtcdDynamicConfigurationTest {
         }
 
         @Override
-        public void process(ConfigChangeEvent event) {
+        public void process(ConfigChangedEvent event) {
             Integer count = countMap.computeIfAbsent(event.getKey(), k -> 0);
             countMap.put(event.getKey(), ++count);
-            value = event.getValue();
+            value = event.getContent();
             latch.countDown();
         }
 
@@ -140,7 +142,7 @@ public class EtcdDynamicConfigurationTest {
 
         // timeout in 15 seconds.
         URL url = URL.valueOf(urlForDubbo)
-                .addParameter(Constants.SESSION_TIMEOUT_KEY, 15000);
+                .addParameter(SESSION_TIMEOUT_KEY, 15000);
         config = new EtcdDynamicConfiguration(url);
     }
 

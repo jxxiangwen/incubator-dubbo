@@ -48,7 +48,7 @@ public class RouterChain<T> {
 
     private RouterChain(URL url) {
         List<RouterFactory> extensionFactories = ExtensionLoader.getExtensionLoader(RouterFactory.class)
-                .getActivateExtension(url, (String[]) null);
+                .getActivateExtension(url, "router");
 
         List<Router> routers = extensionFactories.stream()
                 .map(factory -> factory.getRouter(url))
@@ -79,7 +79,7 @@ public class RouterChain<T> {
         List<Router> newRouters = new ArrayList<>();
         newRouters.addAll(builtinRouters);
         newRouters.addAll(routers);
-        CollectionUtils.sort(routers);
+        CollectionUtils.sort(newRouters);
         this.routers = newRouters;
     }
 
