@@ -31,7 +31,7 @@ import org.apache.dubbo.rpc.listener.ListenerInvokerWrapper;
 import java.util.Collections;
 
 /**
- * ListenerProtocol
+ * ListenerProtocol protocol的包装类，通过spi获取的对象的时候会使用此类包装protocol
  */
 public class ProtocolListenerWrapper implements Protocol {
 

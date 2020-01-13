@@ -30,6 +30,7 @@ public class ProviderModel {
     private final String serviceName;
     private final Object serviceInstance;
     private final Class<?> serviceInterfaceClass;
+    // key是方法名称，value是方法模型，使用list是因为存在函数重载
     private final Map<String, List<ProviderMethodModel>> methods = new HashMap<String, List<ProviderMethodModel>>();
 
     public ProviderModel(String serviceName, Object serviceInstance, Class<?> serviceInterfaceClass) {

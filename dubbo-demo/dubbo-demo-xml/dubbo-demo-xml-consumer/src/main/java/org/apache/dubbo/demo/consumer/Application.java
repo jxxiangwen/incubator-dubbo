@@ -16,9 +16,13 @@
  */
 package org.apache.dubbo.demo.consumer;
 
+import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.demo.DemoService;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 public class Application {
     /**
@@ -26,10 +30,23 @@ public class Application {
      * launch the application
      */
     public static void main(String[] args) {
+        String decode = decode("/test/adfa/adg");
+        System.out.println(decode);
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring/dubbo-consumer.xml");
         context.start();
         DemoService demoService = context.getBean("demoService", DemoService.class);
         String hello = demoService.sayHello("world");
         System.out.println("result: " + hello);
+    }
+
+    public static String decode(String value) {
+        if (StringUtils.isEmpty(value)) {
+            return "";
+        }
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 }

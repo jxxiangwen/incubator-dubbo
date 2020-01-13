@@ -63,7 +63,7 @@ public class MulticastRegistry extends FailbackRegistry {
     private final MulticastSocket multicastSocket;
 
     private final int multicastPort;
-
+    // 收到的URL
     private final ConcurrentMap<URL, Set<URL>> received = new ConcurrentHashMap<URL, Set<URL>>();
 
     private final ScheduledExecutorService cleanExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("DubboMulticastRegistryCleanTimer", true));
@@ -89,6 +89,7 @@ public class MulticastRegistry extends FailbackRegistry {
             multicastSocket = new MulticastSocket(multicastPort);
             multicastSocket.setLoopbackMode(false);
             multicastSocket.joinGroup(multicastAddress);
+            // 接受其他注册服务变更信息
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -123,6 +124,7 @@ public class MulticastRegistry extends FailbackRegistry {
                 @Override
                 public void run() {
                     try {
+                        // 定时清理接受到的
                         clean(); // Remove the expired
                     } catch (Throwable t) { // Defensive fault tolerance
                         logger.error("Unexpected exception occur at clean expired provider, cause: " + t.getMessage(), t);
@@ -138,6 +140,7 @@ public class MulticastRegistry extends FailbackRegistry {
      * Remove the expired providers, only when "clean" parameter is true.
      */
     private void clean() {
+        // admin在订阅了*的时候会设置为true
         if (admin) {
             for (Set<URL> providers : new HashSet<Set<URL>>(received.values())) {
                 for (URL url : new HashSet<URL>(providers)) {
@@ -152,6 +155,7 @@ public class MulticastRegistry extends FailbackRegistry {
         }
     }
 
+    // 很粗暴，连接不上等100ms，再次重启，还连不上就认为expire
     private boolean isExpired(URL url) {
         if (!url.getParameter(Constants.DYNAMIC_KEY, true)
                 || url.getPort() <= 0
@@ -165,6 +169,7 @@ public class MulticastRegistry extends FailbackRegistry {
             socket = new Socket(url.getHost(), url.getPort());
         } catch (Throwable e) {
             try {
+                // 很粗暴，连接不上等100ms，再次重启，还连不上就认为expire
                 Thread.sleep(100);
             } catch (Throwable e2) {
             }
@@ -197,14 +202,18 @@ public class MulticastRegistry extends FailbackRegistry {
             logger.info("Receive multicast message: " + msg + " from " + remoteAddress);
         }
         if (msg.startsWith(Constants.REGISTER)) {
+            // 接收到url注册
             URL url = URL.valueOf(msg.substring(Constants.REGISTER.length()).trim());
             registered(url);
         } else if (msg.startsWith(Constants.UNREGISTER)) {
+            // 接收到url取消注册
             URL url = URL.valueOf(msg.substring(Constants.UNREGISTER.length()).trim());
             unregistered(url);
         } else if (msg.startsWith(Constants.SUBSCRIBE)) {
+            // 接收到订阅
             URL url = URL.valueOf(msg.substring(Constants.SUBSCRIBE.length()).trim());
             Set<URL> urls = getRegistered();
+            // 遍历自己之前收到过的注册信息
             if (CollectionUtils.isNotEmpty(urls)) {
                 for (URL u : urls) {
                     if (UrlUtils.isMatch(url, u)) {
@@ -212,8 +221,10 @@ public class MulticastRegistry extends FailbackRegistry {
                                 ? remoteAddress.getAddress().getHostAddress() : url.getIp();
                         if (url.getParameter("unicast", true) // Whether the consumer's machine has only one process
                                 && !NetUtils.getLocalHost().equals(host)) { // Multiple processes in the same machine cannot be unicast with unicast or there will be only one process receiving information
+                            // 如果需要单播就单独回给订阅的机器
                             unicast(Constants.REGISTER + " " + u.toFullString(), host);
                         } else {
+                            // 广播自己收到过的注册信息
                             multicast(Constants.REGISTER + " " + u.toFullString());
                         }
                     }
@@ -223,6 +234,10 @@ public class MulticastRegistry extends FailbackRegistry {
         }*/
     }
 
+    /**
+     * 多播msg
+     * @param msg
+     */
     private void multicast(String msg) {
         if (logger.isInfoEnabled()) {
             logger.info("Send multicast message: " + msg + " to " + multicastAddress + ":" + multicastPort);
@@ -236,6 +251,11 @@ public class MulticastRegistry extends FailbackRegistry {
         }
     }
 
+    /**
+     * 单播msg给host主机
+     * @param msg
+     * @param host
+     */
     private void unicast(String msg, String host) {
         if (logger.isInfoEnabled()) {
             logger.info("Send unicast message: " + msg + " to " + host + ":" + multicastPort);
@@ -397,18 +417,21 @@ public class MulticastRegistry extends FailbackRegistry {
     @Override
     public List<URL> lookup(URL url) {
         List<URL> urls = new ArrayList<URL>();
+        // 先从notify中找
         Map<String, List<URL>> notifiedUrls = getNotified().get(url);
         if (notifiedUrls != null && notifiedUrls.size() > 0) {
             for (List<URL> values : notifiedUrls.values()) {
                 urls.addAll(values);
             }
         }
+        // 从内存缓存properties获得相关value，并且返回为注册的服务
         if (urls.isEmpty()) {
             List<URL> cacheUrls = getCacheUrls(url);
             if (CollectionUtils.isNotEmpty(cacheUrls)) {
                 urls.addAll(cacheUrls);
             }
         }
+        // 从registered中获得已注册 服务URL 集合
         if (urls.isEmpty()) {
             for (URL u : getRegistered()) {
                 if (UrlUtils.isMatch(url, u)) {
@@ -416,6 +439,7 @@ public class MulticastRegistry extends FailbackRegistry {
                 }
             }
         }
+        // 如果url携带的配置服务接口为*，也就是所有服务，则从缓存subscribed获得已注册服务URL集合
         if (Constants.ANY_VALUE.equals(url.getServiceInterface())) {
             for (URL u : getSubscribed().keySet()) {
                 if (UrlUtils.isMatch(url, u)) {

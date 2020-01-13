@@ -180,7 +180,7 @@ public class RegistryProtocol implements Protocol {
         providerUrl = overrideUrlWithConfig(providerUrl, overrideSubscribeListener);
         //export invoker
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker, providerUrl);
-
+        // 根据url创建注册工厂，之后创建注册对象，并不会立即注册到注册中心
         // url to registry
         final Registry registry = getRegistry(originInvoker);
         final URL registeredProviderUrl = getRegisteredProviderUrl(providerUrl, registryUrl);
@@ -188,7 +188,7 @@ public class RegistryProtocol implements Protocol {
                 registryUrl, registeredProviderUrl);
         //to judge if we need to delay publish
         boolean register = registeredProviderUrl.getParameter("register", true);
-        if (register) {
+        if (register) {// 注册到注册中心
             register(registryUrl, registeredProviderUrl);
             providerInvokerWrapper.setReg(true);
         }

@@ -31,7 +31,7 @@ import org.apache.dubbo.rpc.RpcException;
 import java.util.List;
 
 /**
- * ListenerProtocol
+ * ListenerProtocol protocol的包装类，通过spi获取的对象的时候会使用此类包装protocol
  */
 public class ProtocolFilterWrapper implements Protocol {
 
@@ -43,7 +43,7 @@ public class ProtocolFilterWrapper implements Protocol {
         }
         this.protocol = protocol;
     }
-
+    // 根据key和group获取实现了Filter的类，使用装饰者将filter装饰为Invoker，并且连成一条链，最后一个Invoker是ProxyFactory生成的真正执行的Invoker
     private static <T> Invoker<T> buildInvokerChain(final Invoker<T> invoker, String key, String group) {
         Invoker<T> last = invoker;
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);

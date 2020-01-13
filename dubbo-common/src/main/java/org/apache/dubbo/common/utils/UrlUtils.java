@@ -41,7 +41,7 @@ public class UrlUtils {
      *  in the url string,mark the param begin
      */
     private final static String URL_PARAM_STARTING_SYMBOL = "?";
-
+    // 将address转换成url，同时如果存在default存在的信息，url不存在就填充
     public static URL parseURL(String address, Map<String, String> defaults) {
         if (address == null || address.length() == 0) {
             return null;
@@ -149,6 +149,7 @@ public class UrlUtils {
         }
         List<URL> registries = new ArrayList<URL>();
         for (String addr : addresses) {
+            // 将address转换成url，同时如果存在default存在的信息，url不存在就填充
             registries.add(parseURL(addr, defaults));
         }
         return registries;
@@ -368,20 +369,28 @@ public class UrlUtils {
         }
     }
 
+    /**
+     * 比对serviceInterface,category,enable,consumerGroup,consumerVersion,consumerClassifier
+     * @param consumerUrl
+     * @param providerUrl
+     * @return
+     */
     public static boolean isMatch(URL consumerUrl, URL providerUrl) {
         String consumerInterface = consumerUrl.getServiceInterface();
         String providerInterface = providerUrl.getServiceInterface();
+        // 消费接口为任意或者提供接口为任意或者消费接口等于提供接口
         //FIXME accept providerUrl with '*' as interface name, after carefully thought about all possible scenarios I think it's ok to add this condition.
         if (!(Constants.ANY_VALUE.equals(consumerInterface)
                 || Constants.ANY_VALUE.equals(providerInterface)
                 || StringUtils.isEquals(consumerInterface, providerInterface))) {
             return false;
         }
-
+        // category匹配
         if (!isMatchCategory(providerUrl.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY),
                 consumerUrl.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY))) {
             return false;
         }
+        // 提供者激活并且消费者激活不能为任意
         if (!providerUrl.getParameter(Constants.ENABLED_KEY, true)
                 && !Constants.ANY_VALUE.equals(consumerUrl.getParameter(Constants.ENABLED_KEY))) {
             return false;
@@ -394,6 +403,9 @@ public class UrlUtils {
         String providerGroup = providerUrl.getParameter(Constants.GROUP_KEY);
         String providerVersion = providerUrl.getParameter(Constants.VERSION_KEY);
         String providerClassifier = providerUrl.getParameter(Constants.CLASSIFIER_KEY, Constants.ANY_VALUE);
+        // 1.消费组是任意消费组或者消费组和提供组一致，或者消费组包含提供组
+        // 2.消费版本是任意版本或者消费版本和提供版本一致
+        // 3.消费分类器为空或者为任意分类器或者消费分类器和提供分类器一致
         return (Constants.ANY_VALUE.equals(consumerGroup) || StringUtils.isEquals(consumerGroup, providerGroup) || StringUtils.isContains(consumerGroup, providerGroup))
                 && (Constants.ANY_VALUE.equals(consumerVersion) || StringUtils.isEquals(consumerVersion, providerVersion))
                 && (consumerClassifier == null || Constants.ANY_VALUE.equals(consumerClassifier) || StringUtils.isEquals(consumerClassifier, providerClassifier));

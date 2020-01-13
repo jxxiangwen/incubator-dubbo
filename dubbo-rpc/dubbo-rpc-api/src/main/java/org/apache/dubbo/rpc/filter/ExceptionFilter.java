@@ -68,19 +68,19 @@ public class ExceptionFilter implements Filter {
             throw e;
         }
     }
-
+    // 对某些未知的异常进行包装返回
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         if (result.hasException() && GenericService.class != invoker.getInterface()) {
             try {
                 Throwable exception = result.getException();
-
+                // 不处理检查异常
                 // directly throw if it's checked exception
                 if (!(exception instanceof RuntimeException) && (exception instanceof Exception)) {
                     return result;
                 }
                 // directly throw if the exception appears in the signature
-                try {
+                try {// 不处理方法定义的抛出的异常
                     Method method = invoker.getInterface().getMethod(invocation.getMethodName(), invocation.getParameterTypes());
                     Class<?>[] exceptionClassses = method.getExceptionTypes();
                     for (Class<?> exceptionClass : exceptionClassses) {
@@ -96,19 +96,19 @@ public class ExceptionFilter implements Filter {
                 logger.error("Got unchecked and undeclared exception which called by " + RpcContext.getContext().getRemoteHost()
                         + ". service: " + invoker.getInterface().getName() + ", method: " + invocation.getMethodName()
                         + ", exception: " + exception.getClass().getName() + ": " + exception.getMessage(), exception);
-
+                // 不处理类和异常在同一个jar包的异常
                 // directly throw if exception class and interface class are in the same jar file.
                 String serviceFile = ReflectUtils.getCodeBase(invoker.getInterface());
                 String exceptionFile = ReflectUtils.getCodeBase(exception.getClass());
                 if (serviceFile == null || exceptionFile == null || serviceFile.equals(exceptionFile)) {
                     return result;
                 }
-                // directly throw if it's JDK exception
+                // directly throw if it's JDK exception 不处理jdk异常
                 String className = exception.getClass().getName();
                 if (className.startsWith("java.") || className.startsWith("javax.")) {
                     return result;
                 }
-                // directly throw if it's dubbo exception
+                // directly throw if it's dubbo exception  不处理dubbo的异常
                 if (exception instanceof RpcException) {
                     return result;
                 }

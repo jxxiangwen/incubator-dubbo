@@ -389,7 +389,7 @@ public abstract class AbstractConfig implements Serializable {
             return k.substring(0, k.indexOf("."));
         }).collect(Collectors.toSet());
     }
-
+    // 通过set方法找到get方法，然后根据Parameter注解决定使用那个属性名称
     private static String extractPropertyName(Class<?> clazz, Method setter) throws Exception {
         String propertyName = setter.getName().substring("set".length());
         Method getter = null;

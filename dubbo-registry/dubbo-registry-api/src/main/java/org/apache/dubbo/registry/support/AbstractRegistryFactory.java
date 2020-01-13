@@ -93,6 +93,7 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
             if (registry != null) {
                 return registry;
             }
+            // 通过spi创建注册
             //create registry by spi/ioc
             registry = createRegistry(url);
             if (registry == null) {

@@ -49,13 +49,16 @@ public abstract class AbstractZookeeperTransporter implements ZookeeperTransport
      */
     public ZookeeperClient connect(URL url) {
         ZookeeperClient zookeeperClient;
+        // 获取url中的zk地址列表
         List<String> addressList = getURLBackupAddress(url);
         // The field define the zookeeper server , including protocol, host, port, username, password
+        // 如果已经创建过就直接返回
         if ((zookeeperClient = fetchAndUpdateZookeeperClientCache(addressList)) != null && zookeeperClient.isConnected()) {
             logger.info("find valid zookeeper client from the cache for address: " + url);
             return zookeeperClient;
         }
         // avoid creating too many connections， so add lock
+        // 虽然是concurrentHashMap，不加锁还是会创建多个客户端
         synchronized (zookeeperClientMap) {
             if ((zookeeperClient = fetchAndUpdateZookeeperClientCache(addressList)) != null && zookeeperClient.isConnected()) {
                 logger.info("find valid zookeeper client from the cache for address: " + url);

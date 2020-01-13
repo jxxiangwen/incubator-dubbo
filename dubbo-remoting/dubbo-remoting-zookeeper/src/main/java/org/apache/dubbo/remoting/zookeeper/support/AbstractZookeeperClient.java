@@ -82,6 +82,12 @@ public abstract class AbstractZookeeperClient<TargetChildListener> implements Zo
         return stateListeners;
     }
 
+    /**
+     * 根据listener创建一个client监听器包装者，当有变化的时候调用listener
+     * @param path
+     * @param listener
+     * @return 返回children
+     */
     @Override
     public List<String> addChildListener(String path, final ChildListener listener) {
         ConcurrentMap<ChildListener, TargetChildListener> listeners = childListeners.get(path);
@@ -91,9 +97,11 @@ public abstract class AbstractZookeeperClient<TargetChildListener> implements Zo
         }
         TargetChildListener targetListener = listeners.get(listener);
         if (targetListener == null) {
+            // 创建zk watcher，根据listener创建一个client监听器包装者，当有变化的时候调用listener
             listeners.putIfAbsent(listener, createTargetChildListener(path, listener));
             targetListener = listeners.get(listener);
         }
+        // 添加watcher，同时返回children
         return addTargetChildListener(path, targetListener);
     }
 
