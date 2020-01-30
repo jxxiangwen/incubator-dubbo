@@ -19,13 +19,28 @@
 
 package org.apache.dubbo.config;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ConfigCenterConfigTest {
     @Test
     public void testPrefix() {
         ConfigCenterConfig config = new ConfigCenterConfig();
-        TestCase.assertEquals("dubbo.config-center", config.getPrefix());
+        Assertions.assertEquals("dubbo.config-center", config.getPrefix());
+    }
+
+    @Test
+    public void testToUrl() {
+        ConfigCenterConfig config = new ConfigCenterConfig();
+        config.setNamespace("namespace");
+        config.setGroup("group");
+        config.setAddress("zookeeper://127.0.0.1:2181");
+
+        Assertions.assertEquals("zookeeper://127.0.0.1:2181/ConfigCenterConfig?check=true&" +
+                        "config-file=dubbo.properties&group=group&highest-priority=true&" +
+                        "namespace=namespace&timeout=3000",
+                config.toUrl().toFullString()
+        );
     }
 }

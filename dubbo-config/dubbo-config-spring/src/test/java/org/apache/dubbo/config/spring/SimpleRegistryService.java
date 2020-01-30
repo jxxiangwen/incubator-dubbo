@@ -19,6 +19,7 @@ package org.apache.dubbo.config.spring;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
+import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.common.utils.UrlUtils;
 import org.apache.dubbo.registry.NotifyListener;
@@ -72,11 +73,11 @@ public class SimpleRegistryService extends AbstractRegistryService {
         }
         List<URL> urls = getRegistered().get(service);
         if ((RegistryService.class.getName() + ":0.0.0").equals(service)
-                && (urls == null || urls.size() == 0)) {
+                && CollectionUtils.isEmpty(urls)) {
             register(service, new URL("dubbo",
                     NetUtils.getLocalHost(),
                     RpcContext.getContext().getLocalPort(),
-                    org.apache.dubbo.registry.RegistryService.class.getName(),
+                    RegistryService.class.getName(),
                     url.getParameters()));
             List<String> rs = registries;
             if (rs != null && rs.size() > 0) {
@@ -133,7 +134,7 @@ public class SimpleRegistryService extends AbstractRegistryService {
                 super.unsubscribe(service, new URL("subscribe",
                         RpcContext.getContext().getRemoteHost(),
                         RpcContext.getContext().getRemotePort(),
-                        org.apache.dubbo.registry.RegistryService.class.getName(), getSubscribed(service)), entry.getValue());
+                        RegistryService.class.getName(), getSubscribed(service)), entry.getValue());
             }
         }
     }

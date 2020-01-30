@@ -21,10 +21,10 @@ import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.ChannelHandler;
 import org.apache.dubbo.remoting.RemotingException;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ThreadNameTest {
 
@@ -37,20 +37,23 @@ public class ThreadNameTest {
     private ThreadNameVerifyHandler serverHandler;
     private ThreadNameVerifyHandler clientHandler;
 
-    @Before
+    private static String serverRegex = "DubboServerHandler\\-localhost:(\\d+)\\-thread\\-(\\d+)";
+    private static String clientRegex = "DubboClientHandler\\-localhost:(\\d+)\\-thread\\-(\\d+)";
+
+    @BeforeEach
     public void before() throws Exception {
         int port = 55555;
-        serverURL = URL.valueOf("netty://localhost").setPort(port);
-        clientURL = URL.valueOf("netty://localhost").setPort(port);
+        serverURL = URL.valueOf("netty://localhost?side=provider").setPort(port);
+        clientURL = URL.valueOf("netty://localhost?side=consumer").setPort(port);
 
-        serverHandler = new ThreadNameVerifyHandler(String.valueOf(port), false);
-        clientHandler = new ThreadNameVerifyHandler(String.valueOf(port), true);
+        serverHandler = new ThreadNameVerifyHandler(serverRegex, false);
+        clientHandler = new ThreadNameVerifyHandler(clientRegex, true);
 
         server = new NettyServer(serverURL, serverHandler);
         client = new NettyClient(clientURL, clientHandler);
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         if (client != null) {
             client.close();
@@ -68,7 +71,7 @@ public class ThreadNameTest {
         client.send("hello");
         Thread.sleep(1000L * 5L);
         if (!serverHandler.isSuccess() || !clientHandler.isSuccess()) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -89,7 +92,7 @@ public class ThreadNameTest {
 
         private void checkThreadName() {
             if (!success) {
-                success = Thread.currentThread().getName().contains(message);
+                success = Thread.currentThread().getName().matches(message);
             }
         }
 

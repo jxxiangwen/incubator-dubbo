@@ -27,32 +27,33 @@ import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.ServiceConfig;
-import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.RpcInvocation;
 
-import junit.framework.TestCase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * CacheTest
  */
-public class CacheTest extends TestCase {
+public class CacheTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        ConfigManager.getInstance().clear();
+//        ApplicationModel.getConfigManager().clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
-        ConfigManager.getInstance().clear();
+//        ApplicationModel.getConfigManager().clear();
     }
 
     private void testCache(String type) throws Exception {
@@ -130,7 +131,7 @@ public class CacheTest extends TestCase {
         parameters.put("findCache.cache", "threadlocal");
         URL url = new URL("dubbo", "127.0.0.1", 29582, "org.apache.dubbo.config.cache.CacheService", parameters);
 
-        Invocation invocation = new RpcInvocation("findCache", new Class[]{String.class}, new String[]{"0"}, null, null);
+        Invocation invocation = new RpcInvocation("findCache", CacheService.class.getName(), new Class[]{String.class}, new String[]{"0"}, null, null, null);
 
         Cache cache = cacheFactory.getCache(url, invocation);
         assertTrue(cache instanceof ThreadLocalCache);

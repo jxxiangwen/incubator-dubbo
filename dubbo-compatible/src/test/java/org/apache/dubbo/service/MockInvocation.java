@@ -16,12 +16,18 @@
  */
 package org.apache.dubbo.service;
 
-import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.dubbo.common.constants.CommonConstants.DUBBO_VERSION_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.PATH_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
+import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
+import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
 
 /**
  * MockInvocation.java
@@ -34,8 +40,18 @@ public class MockInvocation implements Invocation {
         this.arg0 = arg0;
     }
 
+    @Override
+    public String getTargetServiceUniqueName() {
+        return null;
+    }
+
     public String getMethodName() {
         return "echo";
+    }
+
+    @Override
+    public String getServiceName() {
+        return "DemoService";
     }
 
     public Class<?>[] getParameterTypes() {
@@ -47,17 +63,42 @@ public class MockInvocation implements Invocation {
     }
 
     public Map<String, String> getAttachments() {
-        Map<String, String> attachments = new HashMap<String, String>();
-        attachments.put(Constants.PATH_KEY, "dubbo");
-        attachments.put(Constants.GROUP_KEY, "dubbo");
-        attachments.put(Constants.VERSION_KEY, "1.0.0");
-        attachments.put(Constants.DUBBO_VERSION_KEY, "1.0.0");
-        attachments.put(Constants.TOKEN_KEY, "sfag");
-        attachments.put(Constants.TIMEOUT_KEY, "1000");
+        Map<String, String> attachments = new HashMap<>();
+        attachments.put(PATH_KEY, "dubbo");
+        attachments.put(GROUP_KEY, "dubbo");
+        attachments.put(VERSION_KEY, "1.0.0");
+        attachments.put(DUBBO_VERSION_KEY, "1.0.0");
+        attachments.put(TOKEN_KEY, "sfag");
+        attachments.put(TIMEOUT_KEY, "1000");
         return attachments;
     }
 
+    @Override
+    public void setAttachment(String key, String value) {
+
+    }
+
+    @Override
+    public void setAttachmentIfAbsent(String key, String value) {
+
+    }
+
     public Invoker<?> getInvoker() {
+        return null;
+    }
+
+    @Override
+    public Object put(Object key, Object value) {
+        return null;
+    }
+
+    @Override
+    public Object get(Object key) {
+        return null;
+    }
+
+    @Override
+    public Map<Object, Object> getAttributes() {
         return null;
     }
 

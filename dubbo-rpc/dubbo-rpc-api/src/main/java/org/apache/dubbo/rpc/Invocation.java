@@ -17,6 +17,7 @@
 package org.apache.dubbo.rpc;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Invocation. (API, Prototype, NonThreadSafe)
@@ -27,6 +28,8 @@ import java.util.Map;
  */
 public interface Invocation {
 
+    String getTargetServiceUniqueName();
+
     /**
      * get method name.
      *
@@ -35,6 +38,13 @@ public interface Invocation {
      */
     String getMethodName();
 
+
+    /**
+     * get the interface name
+     * @return
+     */
+    String getServiceName();
+
     /**
      * get parameter types.
      *
@@ -42,6 +52,17 @@ public interface Invocation {
      * @serial
      */
     Class<?>[] getParameterTypes();
+
+    /**
+     * get parameter's signature, string representation of parameter types.
+     *
+     * @return parameter's signature
+     */
+    default String[] getCompatibleParamSignatures() {
+        return Stream.of(getParameterTypes())
+                .map(Class::getName)
+                .toArray(String[]::new);
+    }
 
     /**
      * get arguments.
@@ -58,6 +79,10 @@ public interface Invocation {
      * @serial
      */
     Map<String, String> getAttachments();
+
+    void setAttachment(String key, String value);
+
+    void setAttachmentIfAbsent(String key, String value);
 
     /**
      * get attachment by key.
@@ -83,4 +108,9 @@ public interface Invocation {
      */
     Invoker<?> getInvoker();
 
+    Object put(Object key, Object value);
+
+    Object get(Object key);
+
+    Map<Object, Object> getAttributes();
 }

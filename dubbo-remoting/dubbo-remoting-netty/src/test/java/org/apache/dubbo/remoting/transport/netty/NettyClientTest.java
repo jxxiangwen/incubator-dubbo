@@ -18,13 +18,13 @@ package org.apache.dubbo.remoting.transport.netty;
 
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.remoting.RemotingException;
-import org.apache.dubbo.remoting.Server;
+import org.apache.dubbo.remoting.RemotingServer;
 import org.apache.dubbo.remoting.exchange.ExchangeChannel;
 import org.apache.dubbo.remoting.exchange.Exchangers;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +34,16 @@ import java.util.List;
  * Time: 5:47 PM
  */
 public class NettyClientTest {
-    static Server server;
+    static RemotingServer server;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         server = Exchangers.bind(URL.valueOf("exchange://localhost:10001?server=netty3"), new TelnetServerHandler());
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
+    @AfterAll
+    public static void tearDown() {
         try {
             if (server != null)
                 server.close();
@@ -73,7 +73,7 @@ public class NettyClientTest {
     @Test
     public void testServerClose() throws Exception {
         for (int i = 0; i < 100; i++) {
-            Server aServer = Exchangers.bind(URL.valueOf("exchange://localhost:" + (5000 + i) + "?server=netty3"), new TelnetServerHandler());
+            RemotingServer aServer = Exchangers.bind(URL.valueOf("exchange://localhost:" + (6000 + i) + "?server=netty3"), new TelnetServerHandler());
             aServer.close();
         }
     }
