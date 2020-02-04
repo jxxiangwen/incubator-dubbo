@@ -79,15 +79,15 @@ public class ExtensionLoader<T> {
     private final Class<?> type;
 
     private final ExtensionFactory objectFactory;
-
+    // 保存类型对应的扩展名称
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
-
+    // 保存的和cachedNames的key和value互换
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String, Class<?>>>();
-
+    // 缓存Activate注解，key为extension的值
     private final Map<String, Object> cachedActivates = new ConcurrentHashMap<String, Object>();
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<String, Holder<Object>>();
     private final Holder<Object> cachedAdaptiveInstance = new Holder<Object>();
-    private volatile Class<?> cachedAdaptiveClass = null;
+    private volatile Class<?> cachedAdaptiveClass = null; // 使用Adaptive注解标注的类
     private String cachedDefaultName;
     private volatile Throwable createAdaptiveInstanceError;
 
@@ -267,7 +267,7 @@ public class ExtensionLoader<T> {
     }
 
     private boolean isActive(String[] keys, URL url) {
-        if (keys.length == 0) {
+        if (keys.length == 0) {// 如果没有指定key，默认激活
             return true;
         }
         for (String key : keys) {
@@ -481,7 +481,7 @@ public class ExtensionLoader<T> {
                         }
                     }
                 }
-            } else {
+            } else {// 走到这里代表创建过，但是失败了
                 throw new IllegalStateException("fail to create adaptive instance: " + createAdaptiveInstanceError.toString(), createAdaptiveInstanceError);
             }
         }
@@ -600,11 +600,11 @@ public class ExtensionLoader<T> {
         }
         return classes;
     }
-
+    // 设置spi默认值，从META-INF/dubbo/internal/,META-INF/dubbo/,META-INF/services/加载扩展类
     // synchronized in getExtensionClasses
     private Map<String, Class<?>> loadExtensionClasses() {
         final SPI defaultAnnotation = type.getAnnotation(SPI.class);
-        if (defaultAnnotation != null) {
+        if (defaultAnnotation != null) {// 获取spi的默认值
             String value = defaultAnnotation.value();
             if ((value = value.trim()).length() > 0) {
                 String[] names = NAME_SEPARATOR.split(value);
@@ -772,7 +772,7 @@ public class ExtensionLoader<T> {
 
     @SuppressWarnings("unchecked")
     private T createAdaptiveExtension() {
-        try {
+        try {// 获取adapter的class直接newInstance
             return injectExtension((T) getAdaptiveExtensionClass().newInstance());
         } catch (Exception e) {
             throw new IllegalStateException("Can not create adaptive extension " + type + ", cause: " + e.getMessage(), e);
@@ -786,7 +786,7 @@ public class ExtensionLoader<T> {
         }
         return cachedAdaptiveClass = createAdaptiveExtensionClass();
     }
-
+    // 创建adaptive扩展类
     private Class<?> createAdaptiveExtensionClass() {
         String code = createAdaptiveExtensionClassCode();
         ClassLoader classLoader = findClassLoader();
@@ -798,7 +798,7 @@ public class ExtensionLoader<T> {
         StringBuilder codeBuilder = new StringBuilder();
         Method[] methods = type.getMethods();
         boolean hasAdaptiveAnnotation = false;
-        for (Method m : methods) {
+        for (Method m : methods) {// 必须要有Adaptive注解的方法
             if (m.isAnnotationPresent(Adaptive.class)) {
                 hasAdaptiveAnnotation = true;
                 break;
@@ -820,7 +820,7 @@ public class ExtensionLoader<T> {
 
             Adaptive adaptiveAnnotation = method.getAnnotation(Adaptive.class);
             StringBuilder code = new StringBuilder(512);
-            if (adaptiveAnnotation == null) {
+            if (adaptiveAnnotation == null) { // 如果方法不是用Adaptive注解修饰的，调用方法就抛出UnsupportedOperationException异常
                 code.append("throw new UnsupportedOperationException(\"method ")
                         .append(method.toString()).append(" of interface ")
                         .append(type.getName()).append(" is not adaptive method!\");");

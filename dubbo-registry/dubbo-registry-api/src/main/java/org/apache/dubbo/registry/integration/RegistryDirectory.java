@@ -386,7 +386,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
                     } else {
                         enabled = url.getParameter(Constants.ENABLED_KEY, true);
                     }
-                    if (enabled) {
+                    if (enabled) {// 这里会创建客户端,比如使用dubbo，这里会调用dubbo的refer
                         invoker = new InvokerDelegate<T>(protocol.refer(serviceType, url), url, providerUrl);
                     }
                 } catch (Throwable t) {

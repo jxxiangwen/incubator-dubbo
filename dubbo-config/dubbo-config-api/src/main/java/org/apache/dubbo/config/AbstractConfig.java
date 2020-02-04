@@ -389,7 +389,7 @@ public abstract class AbstractConfig implements Serializable {
             return k.substring(0, k.indexOf("."));
         }).collect(Collectors.toSet());
     }
-    // 通过set方法找到get方法，然后根据Parameter注解决定使用那个属性名称
+    // 通过set方法找到get方法，然后根据Parameter注解决定使用那个属性名称,因为Parameter加在get方法上，而Parameter可能会改变属性值
     private static String extractPropertyName(Class<?> clazz, Method setter) throws Exception {
         String propertyName = setter.getName().substring("set".length());
         Method getter = null;
@@ -473,7 +473,7 @@ public abstract class AbstractConfig implements Serializable {
     /**
      * Should be called after Config was fully initialized.
      * // FIXME: this method should be completely replaced by appendParameters
-     *
+     * 当前对象get方法的名称作为key（如果有parameter注解会不同），值作为value
      * @return
      * @see AbstractConfig#appendParameters(Map, Object, String)
      * <p>
@@ -540,7 +540,7 @@ public abstract class AbstractConfig implements Serializable {
      * overriding of customized parameters stored in 'parameters'.
      */
     public void refresh() {
-        try {
+        try {// 初始化配置，并且将当前对象get的值作为一个配置加入CompositeConfiguration
             CompositeConfiguration compositeConfiguration = Environment.getInstance().getConfiguration(getPrefix(), getId());
             InmemoryConfiguration config = new InmemoryConfiguration(getPrefix(), getId());
             config.addProperties(getMetaData());

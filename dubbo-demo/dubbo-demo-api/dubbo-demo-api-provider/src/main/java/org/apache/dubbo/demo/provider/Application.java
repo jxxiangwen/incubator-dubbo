@@ -34,6 +34,7 @@ public class Application {
         service.setRegistry(new RegistryConfig("multicast://224.5.6.7:1234"));
         service.setInterface(DemoService.class);
         service.setRef(new DemoServiceImpl());
+        service.setTimeout(1000000);
         service.export();
         System.in.read();
     }

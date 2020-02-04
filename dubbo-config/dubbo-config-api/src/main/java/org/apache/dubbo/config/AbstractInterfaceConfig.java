@@ -554,7 +554,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     /**
      * For compatibility purpose, use registry as the default config center if the registry protocol is zookeeper and
      * there's no config center specified explicitly.
-     */
+     */// 兼容考虑，以zk注册中心，同时不存在配置中心就把zk作为配置中心
     private void useRegistryForConfigIfNecessary() {
         registries.stream().filter(RegistryConfig::isZookeeperProtocol).findFirst().ifPresent(rc -> {
             // we use the loading status of DynamicConfiguration to decide whether ConfigCenter has been initiated.

@@ -52,7 +52,7 @@ public class WrappedChannelHandler implements ChannelHandlerDelegate {
         String componentKey = Constants.EXECUTOR_SERVICE_COMPONENT_KEY;
         if (Constants.CONSUMER_SIDE.equalsIgnoreCase(url.getParameter(Constants.SIDE_KEY))) {
             componentKey = Constants.CONSUMER_SIDE;
-        }
+        }// 使用dataStore来使得executor可以被共用
         DataStore dataStore = ExtensionLoader.getExtensionLoader(DataStore.class).getDefaultExtension();
         dataStore.put(componentKey, Integer.toString(url.getPort()), executor);
     }

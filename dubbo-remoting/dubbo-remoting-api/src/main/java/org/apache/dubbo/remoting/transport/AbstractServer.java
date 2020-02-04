@@ -44,7 +44,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Server 
     ExecutorService executor;
     private InetSocketAddress localAddress;
     private InetSocketAddress bindAddress;
-    private int accepts;
+    private int accepts;// 最多允许建立多少个连接
     private int idleTimeout;
 
     public AbstractServer(URL url, ChannelHandler handler) throws RemotingException {

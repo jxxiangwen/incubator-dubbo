@@ -58,7 +58,7 @@ final class NettyChannel extends AbstractChannel {
             return null;
         }
         NettyChannel ret = channelMap.get(ch);
-        if (ret == null) {
+        if (ret == null) {// netty中这个可能吗？一般ch相关的调用都是在单线程中的，会出现并发冲突吗？
             NettyChannel nettyChannel = new NettyChannel(ch, url, handler);
             if (ch.isActive()) {
                 ret = channelMap.putIfAbsent(ch, nettyChannel);

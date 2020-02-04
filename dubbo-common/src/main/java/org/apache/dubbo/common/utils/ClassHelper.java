@@ -96,7 +96,7 @@ public class ClassHelper {
             cl = Thread.currentThread().getContextClassLoader();
         } catch (Throwable ex) {
             // Cannot access thread context ClassLoader - falling back to system class loader...
-        }
+        }// 如果线程上下文加载器存在，直接返回线程上下文加载器
         if (cl == null) {
             // No thread context class loader -> use class loader of this class.
             cl = clazz.getClassLoader();

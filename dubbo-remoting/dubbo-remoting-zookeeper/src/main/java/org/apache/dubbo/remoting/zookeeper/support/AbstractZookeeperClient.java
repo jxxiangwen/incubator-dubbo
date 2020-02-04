@@ -58,7 +58,7 @@ public abstract class AbstractZookeeperClient<TargetChildListener> implements Zo
             }
         }
         int i = path.lastIndexOf('/');
-        if (i > 0) {
+        if (i > 0) {// 创建父路径
             create(path.substring(0, i), false);
         }
         if (ephemeral) {

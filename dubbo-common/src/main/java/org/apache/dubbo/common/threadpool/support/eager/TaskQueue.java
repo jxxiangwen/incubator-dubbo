@@ -54,6 +54,8 @@ public class TaskQueue<R extends Runnable> extends LinkedBlockingQueue<Runnable>
             return super.offer(runnable);
         }
 
+        // 急切就急切在这里，当正在运行的任务数大于core，小于max，通过返回false，
+        // ThreadPoolExecutor会直接创建Worker来运行，跳过了放入queue的步骤
         // return false to let executor create new worker.
         if (currentPoolThreadSize < executor.getMaximumPoolSize()) {
             return false;

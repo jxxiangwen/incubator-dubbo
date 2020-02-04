@@ -35,9 +35,9 @@ public class Environment {
     private Map<String, EnvironmentConfiguration> environmentConfigs = new ConcurrentHashMap<>();
     private Map<String, InmemoryConfiguration> externalConfigs = new ConcurrentHashMap<>();
     private Map<String, InmemoryConfiguration> appExternalConfigs = new ConcurrentHashMap<>();
-
+    // 通过配置中心获取
     private Map<String, String> externalConfigurationMap = new HashMap<>();
-    private Map<String, String> appExternalConfigurationMap = new HashMap<>();
+    private Map<String, String> appExternalConfigurationMap = new HashMap<>();// 通过配置中心以包含appId为key获取
 
     private boolean configCenterFirst = true;
 

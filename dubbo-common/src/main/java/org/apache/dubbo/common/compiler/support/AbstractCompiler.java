@@ -49,7 +49,7 @@ public abstract class AbstractCompiler implements Compiler {
             throw new IllegalArgumentException("No such class name in " + code);
         }
         String className = pkg != null && pkg.length() > 0 ? pkg + "." + cls : cls;
-        try {
+        try {// 先尝试在类路径加载
             return Class.forName(className, true, ClassHelper.getCallerClassLoader(getClass()));
         } catch (ClassNotFoundException e) {
             if (!code.endsWith("}")) {

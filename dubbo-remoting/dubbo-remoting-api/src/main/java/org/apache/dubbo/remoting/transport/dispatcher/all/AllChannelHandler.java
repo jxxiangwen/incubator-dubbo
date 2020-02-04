@@ -55,7 +55,7 @@ public class AllChannelHandler extends WrappedChannelHandler {
             throw new ExecutionException("disconnect event", channel, getClass() + " error when process disconnected event .", t);
         }
     }
-
+    // 服务端收到请求在这里跳出netty线程，使用自定义线程执行
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         ExecutorService cexecutor = getExecutorService();

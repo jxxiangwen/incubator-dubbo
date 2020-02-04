@@ -92,7 +92,7 @@ public class RestProtocol extends AbstractProxyProtocol {
         String addr = getAddr(url);
         Class implClass = ApplicationModel.getProviderModel(url.getServiceKey()).getServiceInstance().getClass();
         RestServer server = servers.get(addr);
-        if (server == null) {
+        if (server == null) {// 提供rest服务
             server = serverFactory.createServer(url.getParameter(Constants.SERVER_KEY, DEFAULT_SERVER));
             server.start(url);
             servers.put(addr, server);
