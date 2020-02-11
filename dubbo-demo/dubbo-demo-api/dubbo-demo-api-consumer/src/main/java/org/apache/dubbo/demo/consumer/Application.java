@@ -29,6 +29,7 @@ public class Application {
     public static void main(String[] args) {
         ReferenceConfig<DemoService> reference = new ReferenceConfig<>();
         reference.setInterface(DemoService.class);
+        reference.setTimeout(600000);
 
         DubboBootstrap bootstrap = DubboBootstrap.getInstance();
         bootstrap
@@ -36,8 +37,9 @@ public class Application {
                 .registry(new RegistryConfig("zookeeper://127.0.0.1:2181"))
                 .reference(reference)
                 .start();
-
-        String message = ReferenceConfigCache.getCache().get(reference).sayHello("dubbo");
-        System.out.println(message);
+        for (int i = 0; i < 10; i++) {
+            String message = ReferenceConfigCache.getCache().get(reference).sayHello("dubbo");
+            System.out.println(message);
+        }
     }
 }

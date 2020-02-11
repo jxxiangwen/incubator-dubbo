@@ -29,7 +29,7 @@ public class Application {
         ServiceConfig<DemoServiceImpl> service = new ServiceConfig<>();
         service.setInterface(DemoService.class);
         service.setRef(new DemoServiceImpl());
-
+        service.setTimeout(600000);
         DubboBootstrap bootstrap = DubboBootstrap.getInstance();
         bootstrap
                 .application(new ApplicationConfig("dubbo-demo-api-provider"))

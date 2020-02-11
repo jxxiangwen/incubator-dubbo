@@ -90,6 +90,7 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
 
     private void initExecutor(URL url) {
         url = ExecutorUtil.setThreadName(url, CLIENT_THREAD_POOL_NAME);
+        // 客户端默认使用cached线程池
         url = url.addParameterIfAbsent(THREADPOOL_KEY, DEFAULT_CLIENT_THREADPOOL);
         executor = executorRepository.createExecutorIfAbsent(url);
     }
