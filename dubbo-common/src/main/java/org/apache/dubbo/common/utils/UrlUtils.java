@@ -62,7 +62,7 @@ public class UrlUtils {
     /**
      * in the url string,mark the param begin
      */
-    private final static String URL_PARAM_STARTING_SYMBOL = "?";
+    private static final String URL_PARAM_STARTING_SYMBOL = "?";
 
     public static URL parseURL(String address, Map<String, String> defaults) {
         if (address == null || address.length() == 0) {
@@ -93,7 +93,7 @@ public class UrlUtils {
         String defaultPassword = defaults == null ? null : defaults.get(PASSWORD_KEY);
         int defaultPort = StringUtils.parseInteger(defaults == null ? null : defaults.get(PORT_KEY));
         String defaultPath = defaults == null ? null : defaults.get(PATH_KEY);
-        Map<String, String> defaultParameters = defaults == null ? null : new HashMap<String, String>(defaults);
+        Map<String, String> defaultParameters = defaults == null ? null : new HashMap<>(defaults);
         if (defaultParameters != null) {
             defaultParameters.remove(PROTOCOL_KEY);
             defaultParameters.remove(USERNAME_KEY);
@@ -110,8 +110,8 @@ public class UrlUtils {
         String host = u.getHost();
         int port = u.getPort();
         String path = u.getPath();
-        Map<String, String> parameters = new HashMap<String, String>(u.getParameters());
-        if ((protocol == null || protocol.length() == 0) && defaultProtocol != null && defaultProtocol.length() > 0) {
+        Map<String, String> parameters = new HashMap<>(u.getParameters());
+        if (protocol == null || protocol.length() == 0) {
             changed = true;
             protocol = defaultProtocol;
         }
@@ -197,11 +197,7 @@ public class UrlUtils {
                     if (version != null && version.length() > 0) {
                         name = name + ":" + version;
                     }
-                    Map<String, String> newUrls = newRegister.get(name);
-                    if (newUrls == null) {
-                        newUrls = new HashMap<String, String>();
-                        newRegister.put(name, newUrls);
-                    }
+                    Map<String, String> newUrls = newRegister.computeIfAbsent(name, k -> new HashMap<>());
                     newUrls.put(serviceUrl, StringUtils.toQueryString(params));
                 }
             } else {
@@ -258,11 +254,7 @@ public class UrlUtils {
                         params.put("version", name.substring(i + 1));
                         name = name.substring(0, i);
                     }
-                    Map<String, String> newUrls = newRegister.get(name);
-                    if (newUrls == null) {
-                        newUrls = new HashMap<String, String>();
-                        newRegister.put(name, newUrls);
-                    }
+                    Map<String, String> newUrls = newRegister.computeIfAbsent(name, k -> new HashMap<String, String>());
                     newUrls.put(serviceUrl, StringUtils.toQueryString(params));
                 }
             } else {
@@ -321,11 +313,7 @@ public class UrlUtils {
                             if (version != null && version.length() > 0) {
                                 name = name + ":" + version;
                             }
-                            Map<String, String> newUrls = newNotify.get(name);
-                            if (newUrls == null) {
-                                newUrls = new HashMap<String, String>();
-                                newNotify.put(name, newUrls);
-                            }
+                            Map<String, String> newUrls = newNotify.computeIfAbsent(name, k -> new HashMap<String, String>());
                             newUrls.put(url, StringUtils.toQueryString(params));
                         }
                     }

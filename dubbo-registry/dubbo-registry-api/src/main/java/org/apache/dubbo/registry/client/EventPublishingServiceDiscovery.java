@@ -44,7 +44,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 /**
- * The decorating implementation of {@link ServiceDiscovery} to publishe the {@link Event Dubbo event} when some actions are
+ * The decorating implementation of {@link ServiceDiscovery} to published the {@link Event Dubbo event} when some actions are
  * executing, including:
  * <ul>
  * <li>Lifecycle actions:</li>
@@ -224,9 +224,19 @@ final class EventPublishingServiceDiscovery implements ServiceDiscovery {
     }
 
     @Override
+    public URL getUrl() {
+        return serviceDiscovery.getUrl();
+    }
+
+    @Override
+    public ServiceInstance getLocalInstance() {
+        return serviceDiscovery.getLocalInstance();
+    }
+
+    @Override
     public void initialize(URL registryURL) {
 
-        assertInitialized(INITIALIZE_ACTION);
+        assertDestroyed(INITIALIZE_ACTION);
 
         if (isInitialized()) {
             if (logger.isWarnEnabled()) {
@@ -292,14 +302,14 @@ final class EventPublishingServiceDiscovery implements ServiceDiscovery {
     }
 
     protected void assertDestroyed(String action) throws IllegalStateException {
-        if (!isInitialized()) {
-            throw new IllegalStateException("The action[" + action + "] is rejected, because the ServiceDiscovery is not initialized yet.");
+        if (isDestroyed()) {
+            throw new IllegalStateException("The action[" + action + "] is rejected, because the ServiceDiscovery is destroyed already.");
         }
     }
 
     protected void assertInitialized(String action) throws IllegalStateException {
-        if (isDestroyed()) {
-            throw new IllegalStateException("The action[" + action + "] is rejected, because the ServiceDiscovery is destroyed already.");
+        if (!isInitialized()) {
+            throw new IllegalStateException("The action[" + action + "] is rejected, because the ServiceDiscovery is not initialized yet.");
         }
     }
 }
